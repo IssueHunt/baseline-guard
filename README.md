@@ -15,7 +15,7 @@ minimal `package.json` that maps the `baseline` binary to it.
 You install it by pointing npm at the GitHub URL with a tag:
 
 ```bash
-npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.1.0
+npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.2.0
 ```
 
 **Always pin to a tag.** The default branch may not be a release.
@@ -30,7 +30,7 @@ will replace the global binary.
 ### 1. Install globally
 
 ```bash
-npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.1.0
+npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.2.0
 ```
 
 After this, `baseline` is on your PATH.
@@ -294,7 +294,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Audit lockfile against malicious-package feed
-        uses: IssueHunt/baseline-guard@baseline-guard-v0.1.0
+        uses: IssueHunt/baseline-guard@baseline-guard-v0.2.0
         with:
           api-key: ${{ secrets.BASELINE_API_KEY }}
 
@@ -348,7 +348,7 @@ jobs:
           node-version: '22'
 
       - name: Install baseline-guard
-        run: npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.1.0
+        run: npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.2.0
 
       - name: Audit lockfile against malicious-package feed
         run: baseline guard audit --markdown
@@ -381,7 +381,7 @@ audit:
   variables:
     BASELINE_API_KEY: $BASELINE_API_KEY
   script:
-    - npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.1.0
+    - npm install -g github:IssueHunt/baseline-guard#baseline-guard-v0.2.0
     - baseline guard audit
 
 test:
