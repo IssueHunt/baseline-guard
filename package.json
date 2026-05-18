@@ -1,0 +1,10 @@
+{
+  "name": "@baseline/cli-guard",
+  "version": "0.2.0",
+  "description": "Baseline malicious-package guard CLI",
+  "bin": { "baseline": "./cli.js" },
+  "files": ["cli.js", "README.md", "action.yml"],
+  "engines": { "node": ">=22" },
+  "license": "UNLICENSED",
+  "repository": "github:IssueHunt/baseline-guard"
+}

@@ -1,0 +1,60 @@
+name: 'Baseline Guard'
+description: 'Refuse malicious packages before they hit your dependency tree. Fails the workflow and writes a Job Summary on block.'
+author: 'IssueHunt'
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  api-key:
+    description: 'Baseline API key. Pass via `${{ secrets.BASELINE_API_KEY }}`.'
+    required: true
+  lockfile:
+    description: 'Explicit path to a lockfile. Defaults to auto-detect in `working-directory`.'
+    required: false
+  pm:
+    description: 'Package manager (npm, yarn, pnpm, cargo). Auto-detected if omitted.'
+    required: false
+  min-age-days:
+    description: 'Refuse top-level packages younger than this many days. 0 disables. Defaults to the project / user config (7 days if neither).'
+    required: false
+  allow-stale:
+    description: 'Use cached feed even if older than the TTL when network is down. "true" or "false".'
+    required: false
+    default: 'false'
+  config:
+    description: 'Path to baseline-guard.json. Defaults to ./baseline-guard.json relative to working-directory.'
+    required: false
+  working-directory:
+    description: 'Directory to run the audit from. Defaults to the repo root.'
+    required: false
+    default: '.'
+
+runs:
+  using: composite
+  steps:
+    - name: Run baseline guard audit
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BASELINE_API_KEY: ${{ inputs.api-key }}
+        INPUT_LOCKFILE: ${{ inputs.lockfile }}
+        INPUT_PM: ${{ inputs.pm }}
+        INPUT_MIN_AGE_DAYS: ${{ inputs.min-age-days }}
+        INPUT_ALLOW_STALE: ${{ inputs.allow-stale }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        # Build argv from inputs. Values flow through env vars to avoid script
+        # injection from input values containing shell metacharacters.
+        ARGS=(guard audit)
+        [[ -n "$INPUT_LOCKFILE" ]] && ARGS+=("$INPUT_LOCKFILE")
+        [[ -n "$INPUT_PM" ]] && ARGS+=(--pm "$INPUT_PM")
+        [[ -n "$INPUT_MIN_AGE_DAYS" ]] && ARGS+=(--min-age-days "$INPUT_MIN_AGE_DAYS")
+        [[ "$INPUT_ALLOW_STALE" == "true" ]] && ARGS+=(--allow-stale)
+        [[ -n "$INPUT_CONFIG" ]] && ARGS+=(--config "$INPUT_CONFIG")
+        ARGS+=(--markdown)
+
+        # Markdown to stdout → appended to the workflow's Job Summary.
+        # Non-zero exit on block fails the step (the red ✕ on the PR).
+        node "$ACTION_PATH/cli.js" "${ARGS[@]}" >>"$GITHUB_STEP_SUMMARY"
